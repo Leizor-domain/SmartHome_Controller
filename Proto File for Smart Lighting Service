@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package smarthome;
+
+service SmartLighting {
+  rpc ToggleLight (LightRequest) returns (LightResponse);
+  rpc AdjustBrightness (BrightnessRequest) returns (BrightnessResponse);
+  rpc GetEnergyUsage (EnergyRequest) returns (EnergyResponse);
+}
+
+message LightRequest {
+  string device_id = 1;
+  bool state = 2;  // true = ON, false = OFF
+}
+
+message LightResponse {
+  string status = 1;
+}
+
+message BrightnessRequest {
+  string device_id = 1;
+  int32 level = 2;  // Brightness level 0-100
+}
+
+message BrightnessResponse {
+  string status = 1;
+}
+
+message EnergyRequest {
+  string device_id = 1;
+}
+
+message EnergyResponse {
+  float energy_consumed = 1;
+}

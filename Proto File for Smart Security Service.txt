@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package smarthome;
+
+service SmartSecurity {
+  rpc LockDoor (LockRequest) returns (LockResponse);
+  rpc UnlockDoor (LockRequest) returns (LockResponse);
+  rpc GetSecurityLogs (LogRequest) returns (LogResponse);
+}
+
+message LockRequest {
+  string device_id = 1;
+}
+
+message LockResponse {
+  string status = 1;
+}
+
+message LogRequest {
+  string device_id = 1;
+}
+
+message LogResponse {
+  repeated string logs = 1;
+}
