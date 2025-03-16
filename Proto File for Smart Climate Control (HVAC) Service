@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package smarthome; // Climate control services
+
+// Service for Smart Climate Management
+service SmartClimate {
+  // Set a specific temperature
+  rpc SetTemperature (TemperatureRequest) returns (TemperatureResponse);
+
+  // Get the current room temperature and humidity
+  rpc GetCurrentClimate (ClimateRequest) returns (ClimateResponse);
+
+  // Get the energy consumption of climate control systems
+  rpc GetEnergyConsumption (EnergyRequest) returns (EnergyResponse);
+}
+
+// Request to set temperature
+message TemperatureRequest {
+  string device_id = 1; // Device ID of thermostat
+  float temperature = 2;  // Desired temperature in °C
+  string auth_token = 3; // Security authentication
+}
+
+// Response confirming temperature change
+message TemperatureResponse {
+  string status = 1; // "Temperature set to X°C"
+}
+
+// Request to fetch current climate details
+message ClimateRequest {
+  string device_id = 1; // Device ID
+  string auth_token = 2; // Security authentication
+}
+
+// Response with real-time climate details
+message ClimateResponse {
+  float temperature = 1; // Current temperature in °C
+  float humidity = 2; // Current humidity percentage
+  string status = 3; // Status message "Climate data retrieved"
+}
+
+// Request for energy consumption data
+message EnergyRequest {
+  string device_id = 1; // Device ID
+  string auth_token = 2; // Security authentication
+}
+
+// Response with energy usage
+message EnergyResponse {
+  float energy_used = 1; // Energy in kWh
+}
