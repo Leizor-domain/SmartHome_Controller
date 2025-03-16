@@ -1,25 +1,66 @@
 syntax = "proto3";
 
-package smarthome;
+package smarthome; // Smart Security Service
 
+// Service for handling security functions
 service SmartSecurity {
+  // Lock a door remotely
   rpc LockDoor (LockRequest) returns (LockResponse);
+
+  // Unlock a door remotely
   rpc UnlockDoor (LockRequest) returns (LockResponse);
+
+  // Retrieve security logs for auditing
   rpc GetSecurityLogs (LogRequest) returns (LogResponse);
+
+  // Check if motion has been detected
+  rpc GetMotionStatus (MotionRequest) returns (MotionResponse);
+
+  // Stream live security camera footage
+  rpc StreamCamera (CameraRequest) returns (stream CameraResponse);
 }
 
+// Request to lock/unlock a door
 message LockRequest {
-  string device_id = 1;
+  string device_id = 1; // Smart lock ID
+  string auth_token = 2; // Authentication token
 }
 
+// Response confirming lock/unlock action
 message LockResponse {
-  string status = 1;
+  string status = 1; // "Door Locked" / "Door Unlocked"
 }
 
+// Request security logs from the system
 message LogRequest {
-  string device_id = 1;
+  string device_id = 1; // Security system ID
+  string auth_token = 2; // Authentication
 }
 
+// Response with logs
 message LogResponse {
-  repeated string logs = 1;
+  repeated string logs = 1; // List of security events
+}
+
+// Request motion detection status
+message MotionRequest {
+  string device_id = 1; // Motion sensor ID
+  string auth_token = 2; // Authentication
+}
+
+// Response for motion detection
+message MotionResponse {
+  bool motion_detected = 1; // true = motion detected, false = no motion
+  string status = 2; // "Motion detected" / "No motion detected"
+}
+
+// Request to start live camera streaming
+message CameraRequest {
+  string device_id = 1; // Camera ID
+  string auth_token = 2; // Authentication
+}
+
+// Response that streams video feed
+message CameraResponse {
+  bytes video_stream = 1; // Encoded video data
 }
