@@ -1,35 +1,50 @@
-syntax = "proto3";
+syntax = "proto3"; // Define ProtoBuf version
 
-package smarthome;
+package smarthome; // Organizes all services under 'smarthome'
 
+// Service for controlling Smart Lights
 service SmartLighting {
+  // Turns the light ON or OFF
   rpc ToggleLight (LightRequest) returns (LightResponse);
+
+  // Adjusts the brightness of the light
   rpc AdjustBrightness (BrightnessRequest) returns (BrightnessResponse);
+
+  // Retrieves energy consumption of the smart light
   rpc GetEnergyUsage (EnergyRequest) returns (EnergyResponse);
 }
 
+// Request to turn ON/OFF a light
 message LightRequest {
-  string device_id = 1;
+  string device_id = 1; // Unique identifier for the light
   bool state = 2;  // true = ON, false = OFF
+  string auth_token = 3; // Security token for authentication
 }
 
+// Response after toggling the light
 message LightResponse {
-  string status = 1;
+  string status = 1; // "Light turned ON" / "Light turned OFF"
 }
 
+// Request to adjust brightness level
 message BrightnessRequest {
-  string device_id = 1;
-  int32 level = 2;  // Brightness level 0-100
+  string device_id = 1; // Light ID
+  int32 level = 2;  // Brightness level (0-100)
+  string auth_token = 3; // Security token
 }
 
+// Response confirming brightness change
 message BrightnessResponse {
-  string status = 1;
+  string status = 1; // "Brightness set to X%"
 }
 
+// Request to retrieve energy usage
 message EnergyRequest {
-  string device_id = 1;
+  string device_id = 1; // Light ID
+  string auth_token = 2; // Security token
 }
 
+// Response containing energy consumption data
 message EnergyResponse {
-  float energy_consumed = 1;
+  float energy_consumed = 1; // Energy used in kWh
 }
