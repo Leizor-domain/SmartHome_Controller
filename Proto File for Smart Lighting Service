@@ -1,50 +1,55 @@
-syntax = "proto3"; // Define ProtoBuf version
+// --- SmartLighting.proto ---
+syntax = "proto3";
 
-package smarthome; // Organizes all services under 'smarthome'
+package SmartHome1; // Defines the package for SmartLighting services
 
-// Service for controlling Smart Lights
+// Service for Smart Lighting Management
 service SmartLighting {
-  // Turns the light ON or OFF
+  // Unary RPC: Turns the light ON or OFF
   rpc ToggleLight (LightRequest) returns (LightResponse);
-
-  // Adjusts the brightness of the light
+  
+  // Unary RPC: Adjusts the brightness of a light
   rpc AdjustBrightness (BrightnessRequest) returns (BrightnessResponse);
-
-  // Retrieves energy consumption of the smart light
+  
+  // Unary RPC: Retrieves energy consumption of the smart light
   rpc GetEnergyUsage (EnergyRequest) returns (EnergyResponse);
+  
+  // Server Streaming: Streams real-time energy usage updates
+  rpc MonitorEnergyUsage (EnergyRequest) returns (stream EnergyResponse);
+  
+  // Client Streaming: Accepts multiple brightness adjustments in a batch
+  rpc BatchBrightnessAdjustments (stream BrightnessRequest) returns (BrightnessResponse);
+  
+  // Bi-directional Streaming: Enables real-time lighting control adjustments
+  rpc RealTimeLightingControl (stream LightRequest) returns (stream LightResponse);
 }
 
-// Request to turn ON/OFF a light
+// Messages for requests and responses
 message LightRequest {
-  string device_id = 1; // Unique identifier for the light
-  bool state = 2;  // true = ON, false = OFF
-  string auth_token = 3; // Security token for authentication
+  string device_id = 1; // ID of the light
+  bool state = 2; // true = ON, false = OFF
+  string auth_token = 3;
 }
 
-// Response after toggling the light
 message LightResponse {
-  string status = 1; // "Light turned ON" / "Light turned OFF"
+  string status = 1;
 }
 
-// Request to adjust brightness level
 message BrightnessRequest {
-  string device_id = 1; // Light ID
-  int32 level = 2;  // Brightness level (0-100)
-  string auth_token = 3; // Security token
+  string device_id = 1;
+  int32 level = 2; // Brightness level (0-100)
+  string auth_token = 3;
 }
 
-// Response confirming brightness change
 message BrightnessResponse {
-  string status = 1; // "Brightness set to X%"
+  string status = 1;
 }
 
-// Request to retrieve energy usage
 message EnergyRequest {
-  string device_id = 1; // Light ID
-  string auth_token = 2; // Security token
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response containing energy consumption data
 message EnergyResponse {
-  float energy_consumed = 1; // Energy used in kWh
+  float energy_used = 1;
 }
