@@ -1,66 +1,66 @@
+// --- SmartSecurity.proto ---
 syntax = "proto3";
 
-package smarthome; // Smart Security Service
+package SmartHome1; // Defines the package for SmartSecurity services
 
-// Service for handling security functions
+// Service for Smart Security Management
 service SmartSecurity {
-  // Lock a door remotely
+  // Unary RPC: Locks a door remotely
   rpc LockDoor (LockRequest) returns (LockResponse);
-
-  // Unlock a door remotely
+  
+  // Unary RPC: Unlocks a door remotely
   rpc UnlockDoor (LockRequest) returns (LockResponse);
-
-  // Retrieve security logs for auditing
+  
+  // Unary RPC: Retrieves security logs
   rpc GetSecurityLogs (LogRequest) returns (LogResponse);
-
-  // Check if motion has been detected
+  
+  // Unary RPC: Checks motion sensor status
   rpc GetMotionStatus (MotionRequest) returns (MotionResponse);
-
-  // Stream live security camera footage
+  
+  // Server Streaming: Streams live security camera footage
   rpc StreamCamera (CameraRequest) returns (stream CameraResponse);
+  
+  // Client Streaming: Accepts multiple log entries from devices
+  rpc UploadSecurityLogs (stream LogRequest) returns (LogResponse);
+  
+  // Bi-directional Streaming: Monitors security status in real-time
+  rpc LiveSecurityMonitoring (stream MotionRequest) returns (stream MotionResponse);
 }
 
-// Request to lock/unlock a door
+// Messages for requests and responses
 message LockRequest {
-  string device_id = 1; // Smart lock ID
-  string auth_token = 2; // Authentication token
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response confirming lock/unlock action
 message LockResponse {
-  string status = 1; // "Door Locked" / "Door Unlocked"
+  string status = 1;
 }
 
-// Request security logs from the system
 message LogRequest {
-  string device_id = 1; // Security system ID
-  string auth_token = 2; // Authentication
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response with logs
 message LogResponse {
-  repeated string logs = 1; // List of security events
+  repeated string logs = 1;
 }
 
-// Request motion detection status
 message MotionRequest {
-  string device_id = 1; // Motion sensor ID
-  string auth_token = 2; // Authentication
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response for motion detection
 message MotionResponse {
-  bool motion_detected = 1; // true = motion detected, false = no motion
-  string status = 2; // "Motion detected" / "No motion detected"
+  bool motion_detected = 1;
+  string status = 2;
 }
 
-// Request to start live camera streaming
 message CameraRequest {
-  string device_id = 1; // Camera ID
-  string auth_token = 2; // Authentication
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response that streams video feed
 message CameraResponse {
   bytes video_stream = 1; // Encoded video data
 }
