@@ -1,51 +1,56 @@
+// --- SmartClimate.proto ---
 syntax = "proto3";
 
-package smarthome; // Climate control services
+package SmartHome1; // Defines the package for SmartClimate services
 
 // Service for Smart Climate Management
 service SmartClimate {
-  // Set a specific temperature
+  // Unary RPC: Sets a specific temperature
   rpc SetTemperature (TemperatureRequest) returns (TemperatureResponse);
-
-  // Get the current room temperature and humidity
+  
+  // Unary RPC: Gets the current room temperature and humidity
   rpc GetCurrentClimate (ClimateRequest) returns (ClimateResponse);
-
-  // Get the energy consumption of climate control systems
+  
+  // Unary RPC: Retrieves energy consumption data
   rpc GetEnergyConsumption (EnergyRequest) returns (EnergyResponse);
+  
+  // Server Streaming: Streams real-time climate data changes
+  rpc MonitorClimateChanges (ClimateRequest) returns (stream ClimateResponse);
+  
+  // Client Streaming: Receives a batch of temperature settings and applies them
+  rpc BatchTemperatureSettings (stream TemperatureRequest) returns (TemperatureResponse);
+  
+  // Bi-directional Streaming: Adjusts climate settings in real-time
+  rpc LiveClimateControl (stream TemperatureRequest) returns (stream ClimateResponse);
 }
 
-// Request to set temperature
+// Messages for requests and responses
 message TemperatureRequest {
-  string device_id = 1; // Device ID of thermostat
-  float temperature = 2;  // Desired temperature in °C
-  string auth_token = 3; // Security authentication
+  string device_id = 1; // ID of the climate control device
+  float temperature = 2; // Desired temperature in °C
+  string auth_token = 3; // Security authentication token
 }
 
-// Response confirming temperature change
 message TemperatureResponse {
-  string status = 1; // "Temperature set to X°C"
+  string status = 1; // Confirmation message
 }
 
-// Request to fetch current climate details
 message ClimateRequest {
-  string device_id = 1; // Device ID
-  string auth_token = 2; // Security authentication
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response with real-time climate details
 message ClimateResponse {
-  float temperature = 1; // Current temperature in °C
-  float humidity = 2; // Current humidity percentage
-  string status = 3; // Status message "Climate data retrieved"
+  float temperature = 1;
+  float humidity = 2;
+  string status = 3;
 }
 
-// Request for energy consumption data
 message EnergyRequest {
-  string device_id = 1; // Device ID
-  string auth_token = 2; // Security authentication
+  string device_id = 1;
+  string auth_token = 2;
 }
 
-// Response with energy usage
 message EnergyResponse {
   float energy_used = 1; // Energy in kWh
 }
