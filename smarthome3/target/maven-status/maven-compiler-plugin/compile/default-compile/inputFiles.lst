@@ -1,0 +1,14 @@
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/Constants.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/climate/ClimateServiceGrpc.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/security/SecurityServiceGrpc.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/SmartHomeGui.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/common/Common.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/ClimateServiceImpl.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/LightingServiceImpl.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/SecurityServiceImpl.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/security/Security.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/lighting/LightingServiceGrpc.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/SmartHomeClient.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/lighting/Lighting.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/smarthome/climate/Climate.java
+/Users/macbookm2chip/Desktop/ose test/smarthome3/src/main/java/distsys/smarthome3/SmartHomeServer.java

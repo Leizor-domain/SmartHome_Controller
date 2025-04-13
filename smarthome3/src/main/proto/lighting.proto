@@ -1,0 +1,70 @@
+// Specifies the syntax version for Protocol Buffers (proto3)
+syntax = "proto3";
+
+// Declares the package name for the lighting service
+package smarthome.lighting;
+
+// Imports shared/common messages such as Auth, Device, and StatusResponse
+import "common.proto";
+
+
+// Defines the gRPC service for controlling smart lighting
+service LightingService {
+  
+  // Unary RPC: Toggles the light ON or OFF
+  rpc ToggleLight(ToggleRequest) returns (smarthome.common.StatusResponse);
+
+  // Unary RPC: Sets the brightness of the light
+  rpc SetBrightness(BrightnessRequest) returns (smarthome.common.StatusResponse);
+
+  // Server Streaming RPC: Continuously sends light status updates to the client
+  rpc StreamLightStatus(LightStreamRequest) returns (stream LightStatus);
+
+  // Client Streaming RPC: Accepts a batch of light control commands from the client
+  rpc BatchLightControl(stream LightControlCommand) returns (smarthome.common.StatusResponse);
+}
+
+
+// Used to toggle a light on or off
+message ToggleRequest {
+  smarthome.common.Device device = 1;   // Target device to control
+  bool on = 2;                          // True = ON, False = OFF
+  smarthome.common.Auth auth = 3;       // Authentication details
+}
+
+
+// Used to set the light brightness
+message BrightnessRequest {
+  smarthome.common.Device device = 1;   // Target device to control
+  int32 percent = 2;                    // Brightness level (0–100)
+  smarthome.common.Auth auth = 3;       // Authentication details
+}
+
+
+// Sent by the client to request regular light status updates
+message LightStreamRequest {
+  smarthome.common.Device device = 1;   // Device to monitor
+  smarthome.common.Auth auth = 2;       // Authentication details
+  int32 update_interval_seconds = 3;    // Frequency of updates (e.g., every 5 seconds)
+}
+
+
+// Sent by the server to indicate the current light state
+message LightStatus {
+  bool is_on = 1;           // True if light is ON
+  int32 brightness = 2;     // Current brightness level (0–100)
+  int64 timestamp = 3;      // Time of the status report (Unix epoch millis)
+}
+
+
+// Used in client-streaming to queue multiple commands for a light
+message LightControlCommand {
+  smarthome.common.Device device = 1;   // Target device
+  smarthome.common.Auth auth = 2;       // Authentication credentials
+
+  // Only one of the following fields can be set:
+  oneof command {
+    bool toggle = 3;           // ON/OFF command
+    int32 set_brightness = 4;  // Brightness level command
+  }
+}

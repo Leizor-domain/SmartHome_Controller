@@ -1,0 +1,116 @@
+// Specify the Protocol Buffers syntax version to use
+syntax = "proto3";
+
+// Define the package for the security service
+package smarthome.security;
+
+// Import shared types like Auth, Device, and StatusResponse from the common definitions
+import "common.proto";
+
+
+// gRPC Service: SecurityService
+service SecurityService {
+
+  // Unary RPC to lock a door device
+  rpc LockDoor(LockRequest) returns (smarthome.common.StatusResponse);
+
+  // Unary RPC to unlock a door device
+  rpc UnlockDoor(LockRequest) returns (smarthome.common.StatusResponse);
+
+  // Server Streaming RPC to stream live camera feed frames to the client
+  rpc StreamCameraFeed(CameraRequest) returns (stream CameraFrame);
+
+  // Bidirectional Streaming RPC to monitor various security-related events and receive alerts
+  rpc MonitorSecurityEvents(stream SecurityEvent) returns (stream SecurityAlert);
+}
+
+
+// Sent by client to lock or unlock a door device
+message LockRequest {
+  smarthome.common.Device device = 1; // The target door device
+  smarthome.common.Auth auth = 2;     // API key and device ID for authentication
+}
+
+
+// Sent by client to initiate camera feed streaming
+message CameraRequest {
+  string camera_id = 1;               // The ID of the camera to stream from
+  smarthome.common.Auth auth = 2;     // Authentication info
+  int32 frame_rate = 3;               // Number of frames per second (max 30 recommended)
+}
+
+
+// Sent from server to client as each frame of the camera feed
+message CameraFrame {
+  bytes image_data = 1;                     // The raw image byte data of the frame
+  repeated DetectedObject objects = 2;      // Optional: List of detected objects in the frame
+  int64 timestamp = 3;                      // Timestamp when frame was generated (Unix millis)
+}
+
+
+// Describes an object (e.g., person, pet) detected in a camera frame
+message DetectedObject {
+  string type = 1;           // Type of object detected, e.g., "person", "car"
+  float confidence = 2;      // Confidence score (0.0 to 1.0)
+  Rect bounding_box = 3;     // Rectangle describing object's position in the frame
+}
+
+
+// Defines a rectangular area used in object detection
+message Rect {
+  int32 x = 1;               // X position
+  int32 y = 2;               // Y position
+  int32 width = 3;           // Width of bounding box
+  int32 height = 4;          // Height of bounding box
+}
+
+
+// Sent by client to report an event for monitoring (motion, door, alarm)
+message SecurityEvent {
+  smarthome.common.Auth auth = 1;     // Authentication data
+  
+  // One of the following event types must be set:
+  oneof event {
+    MotionEvent motion = 2;          // Motion detected by a camera
+    DoorEvent door = 3;              // Door opened or closed
+    AlarmEvent alarm = 4;            // Alarm triggered
+  }
+}
+
+
+// Sent to report detected motion by a camera
+message MotionEvent {
+  string camera_id = 1;              // ID of camera detecting motion
+  float confidence = 2;              // Confidence of motion detection (0.0 to 1.0)
+}
+
+
+// Sent when a door is opened or closed
+message DoorEvent {
+  string door_id = 1;                // Door identifier
+  bool opened = 2;                   // True = opened, False = closed
+}
+
+
+// Represents an alarm trigger such as intrusion, fire, or leak
+message AlarmEvent {
+
+  // Enum listing types of alarms
+  enum AlarmType {
+    INTRUSION = 0;     // Break-in or unauthorized entry
+    FIRE = 1;          // Fire alarm
+    WATER_LEAK = 2;    // Leak detection
+  }
+
+  AlarmType type = 1;              // Type of alarm triggered
+  bool triggered = 2;              // True if alarm was activated
+}
+
+
+// Sent from server to client in response to a SecurityEvent
+message SecurityAlert {
+  string alert_id = 1;             // Unique identifier for the alert
+  string message = 2;              // Description of the alert
+  int64 timestamp = 3;             // When the alert occurred (Unix millis)
+  SecurityEvent event = 4;         // The original event that triggered the alert
+}

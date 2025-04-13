@@ -1,0 +1,38 @@
+// Specifies that the syntax used in this file follows Protocol Buffers version 3
+syntax = "proto3";
+
+// Defines the common package shared across multiple smart home services
+package smarthome.common;
+
+
+
+// Used for authentication in service requests
+message Auth {
+  string api_key = 1;       // API key used to verify client access
+  string device_id = 2;     // The unique identifier of the requesting device
+}
+
+
+// Describes metadata about a smart home device
+message Device {
+  string id = 1;            // Unique ID of the device (e.g., "device-light-1")
+  string name = 2;          // Human-readable name of the device (optional)
+  string location = 3;      // Physical location or description (e.g., "Living Room")
+}
+
+
+// General-purpose response indicating operation result
+message StatusResponse {
+  bool success = 1;         // Indicates if the operation succeeded (true/false)
+  string message = 2;       // Additional context or description (e.g., "Temperature set")
+}
+
+
+// Used in specific responses to give more granular status detail
+enum OperationStatus {
+  SUCCESS = 0;              // Operation completed successfully
+  UNAUTHORIZED = 1;         // Failed authentication or authorization
+  DEVICE_NOT_FOUND = 2;     // Target device not found or not registered
+  INVALID_PARAMETER = 3;    // Provided data was invalid or out of range
+  INTERNAL_ERROR = 4;       // Server-side or system error occurred
+}

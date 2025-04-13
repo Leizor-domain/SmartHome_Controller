@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+// Package name for climate-related services
+package smarthome.climate;
+
+// Import common definitions shared across services (e.g., Auth, Device, Status)
+import "common.proto";
+
+// ClimateService defines all gRPC methods for managing and monitoring climate systems
+service ClimateService {
+  
+  // Unary RPC: Client sends a temperature to set, server responds with a success status
+  rpc SetTemperature(SetTemperatureRequest) returns (smarthome.common.StatusResponse);
+  
+  // Unary RPC: Client requests current climate data (temperature/humidity)
+  rpc GetTemperature(GetTemperatureRequest) returns (TemperatureResponse);
+  
+  // Server Streaming RPC: Server continuously streams climate updates at intervals
+  rpc StreamClimateUpdates(ClimateStreamRequest) returns (stream ClimateUpdate);
+  
+  // Bi-directional Streaming RPC: Client and server stream temperature adjustments and acknowledgements
+  rpc AdjustTemperature(stream TemperatureAdjustment) returns (stream TemperatureAdjustmentAck);
+}
+
+// Request message to set a new target temperature
+message SetTemperatureRequest {
+  float temperature = 1;                    // Desired target temperature
+  smarthome.common.Auth auth = 2;          // Authentication token (API key + device ID)
+}
+
+// Request message to retrieve current temperature and humidity
+message GetTemperatureRequest {
+  smarthome.common.Device device = 1;      // Target device (e.g., thermostat ID)
+  smarthome.common.Auth auth = 2;          // Authentication information
+}
+
+// Response with current environmental readings
+message TemperatureResponse {
+  float current_temp = 1;                  // Current measured temperature
+  float target_temp = 2;                   // Current target temperature set by the system
+  float humidity = 3;                      // Current measured humidity
+}
+
+// Request to start streaming periodic climate updates
+message ClimateStreamRequest {
+  smarthome.common.Device device = 1;      // Device to monitor
+  smarthome.common.Auth auth = 2;          // Auth token for verification
+  int32 update_interval_seconds = 3;       // Frequency of updates in seconds
+}
+
+// Message structure for each streamed climate update
+message ClimateUpdate {
+  float temperature = 1;                   // Current temperature at time of update
+  float humidity = 2;                      // Current humidity at time of update
+  int64 timestamp = 3;                     // Epoch timestamp of the update
+}
+
+// Client sends a temperature change instruction (e.g., +1 or -0.5 degrees)
+message TemperatureAdjustment {
+  smarthome.common.Device device = 1;      // Device where adjustment should apply
+  smarthome.common.Auth auth = 2;          // Authorization for the action
+  float temperature_delta = 3;             // Temperature change value (positive or negative)
+}
+
+// Server acknowledges a temperature adjustment
+message TemperatureAdjustmentAck {
+  float current_temperature = 1;           // New current temperature after adjustment
+  float target_temperature = 2;            // Updated target temperature
+  smarthome.common.OperationStatus status = 3; // Result of the operation (success/failure)
+}
