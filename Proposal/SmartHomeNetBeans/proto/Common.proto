@@ -1,0 +1,28 @@
+
+syntax = "proto3";
+
+package smarthome.common;
+
+message Auth {
+  string api_key = 1;
+  string device_id = 2;
+}
+
+message Device {
+  string id = 1;
+  string name = 2;
+  string location = 3;
+}
+
+message StatusResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+enum OperationStatus {
+  SUCCESS = 0;
+  UNAUTHORIZED = 1;
+  DEVICE_NOT_FOUND = 2;
+  INVALID_PARAMETER = 3;
+  INTERNAL_ERROR = 4;
+}

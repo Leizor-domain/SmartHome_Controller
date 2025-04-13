@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package smarthome.climate;
+import "common.proto";
+
+service ClimateService {
+  // Unary RPC
+  rpc SetTemperature(SetTemperatureRequest) returns (smarthome.common.StatusResponse);
+  
+  // Unary RPC
+  rpc GetTemperature(GetTemperatureRequest) returns (TemperatureResponse);
+  
+  // Server streaming RPC
+  rpc StreamClimateUpdates(ClimateStreamRequest) returns (stream ClimateUpdate);
+  
+  // Bidirectional streaming RPC
+  rpc AdjustTemperature(stream TemperatureAdjustment) returns (stream TemperatureAdjustmentAck);
+}
+
+message SetTemperatureRequest {
+  float temperature = 1;
+  smarthome.common.Auth auth = 2;
+}
+
+message GetTemperatureRequest {
+  smarthome.common.Device device = 1;
+  smarthome.common.Auth auth = 2;
+}
+
+message TemperatureResponse {
+  float current_temp = 1;
+  float target_temp = 2;
+  float humidity = 3;
+}
+
+message ClimateStreamRequest {
+  smarthome.common.Device device = 1;
+  smarthome.common.Auth auth = 2;
+  int32 update_interval_seconds = 3;
+}
+
+message ClimateUpdate {
+  float temperature = 1;
+  float humidity = 2;
+  int64 timestamp = 3;
+}
+
+message TemperatureAdjustment {
+  smarthome.common.Device device = 1;
+  smarthome.common.Auth auth = 2;
+  float temperature_delta = 3;
+}
+
+message TemperatureAdjustmentAck {
+  float current_temperature = 1;
+  float target_temperature = 2;
+  smarthome.common.OperationStatus status = 3;
+}

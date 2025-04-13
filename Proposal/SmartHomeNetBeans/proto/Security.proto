@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package smarthome.security;
+import "common.proto";
+
+service SecurityService {
+  // Unary RPC
+  rpc LockDoor(LockRequest) returns (smarthome.common.StatusResponse);
+  
+  // Unary RPC
+  rpc UnlockDoor(LockRequest) returns (smarthome.common.StatusResponse);
+  
+  // Server streaming RPC
+  rpc StreamCameraFeed(CameraRequest) returns (stream CameraFrame);
+  
+  // Bidirectional streaming RPC
+  rpc MonitorSecurityEvents(stream SecurityEvent) returns (stream SecurityAlert);
+}
+
+message LockRequest {
+  smarthome.common.Device device = 1;
+  smarthome.common.Auth auth = 2;
+}
+
+message CameraRequest {
+  string camera_id = 1;
+  smarthome.common.Auth auth = 2;
+  int32 frame_rate = 3;
+}
+
+message CameraFrame {
+  bytes image_data = 1;
+  repeated DetectedObject objects = 2;
+  int64 timestamp = 3;
+}
+
+message DetectedObject {
+  string type = 1;
+  float confidence = 2;
+  Rect bounding_box = 3;
+}
+
+message Rect {
+  int32 x = 1;
+  int32 y = 2;
+  int32 width = 3;
+  int32 height = 4;
+}
+
+message SecurityEvent {
+  smarthome.common.Auth auth = 1;
+  oneof event {
+    MotionEvent motion = 2;
+    DoorEvent door = 3;
+    AlarmEvent alarm = 4;
+  }
+}
+
+message MotionEvent {
+  string camera_id = 1;
+  float confidence = 2;
+}
+
+message DoorEvent {
+  string door_id = 1;
+  bool opened = 2;
+}
+
+message AlarmEvent {
+  enum AlarmType {
+    INTRUSION = 0;
+    FIRE = 1;
+    WATER_LEAK = 2;
+  }
+  AlarmType type = 1;
+  bool triggered = 2;
+}
+
+message SecurityAlert {
+  string alert_id = 1;
+  string message = 2;
+  int64 timestamp = 3;
+  SecurityEvent event = 4;
+}

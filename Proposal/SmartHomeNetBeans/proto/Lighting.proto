@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package smarthome.lighting;
+import "common.proto";
+
+service LightingService {
+  // Unary RPC
+  rpc ToggleLight(ToggleRequest) returns (smarthome.common.StatusResponse);
+  
+  // Unary RPC
+  rpc SetBrightness(BrightnessRequest) returns (smarthome.common.StatusResponse);
+  
+  // Server streaming RPC
+  rpc StreamLightStatus(LightStreamRequest) returns (stream LightStatus);
+  
+  // Client streaming RPC
+  rpc BatchLightControl(stream LightControlCommand) returns (smarthome.common.StatusResponse);
+}
+
+message ToggleRequest {
+  smarthome.common.Device device = 1;
+  bool on = 2;
+  smarthome.common.Auth auth = 3;
+}
+
+message BrightnessRequest {
+  smarthome.common.Device device = 1;
+  int32 percent = 2;
+  smarthome.common.Auth auth = 3;
+}
+
+message LightStreamRequest {
+  smarthome.common.Device device = 1;
+  smarthome.common.Auth auth = 2;
+  int32 update_interval_seconds = 3;
+}
+
+message LightStatus {
+  bool is_on = 1;
+  int32 brightness = 2;
+  int64 timestamp = 3;
+}
+
+message LightControlCommand {
+  smarthome.common.Device device = 1;
+  smarthome.common.Auth auth = 2;
+  oneof command {
+    bool toggle = 3;
+    int32 set_brightness = 4;
+  }
+}
