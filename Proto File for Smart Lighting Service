@@ -1,55 +1,70 @@
-// --- SmartLighting.proto ---
+// Specifies the syntax version for Protocol Buffers (proto3)
 syntax = "proto3";
 
-package SmartHome1; // Defines the package for SmartLighting services
+// Declares the package name for the lighting service
+package smarthome.lighting;
 
-// Service for Smart Lighting Management
-service SmartLighting {
-  // Unary RPC: Turns the light ON or OFF
-  rpc ToggleLight (LightRequest) returns (LightResponse);
+// Imports shared/common messages such as Auth, Device, and StatusResponse
+import "common.proto";
+
+
+// Defines the gRPC service for controlling smart lighting
+service LightingService {
   
-  // Unary RPC: Adjusts the brightness of a light
-  rpc AdjustBrightness (BrightnessRequest) returns (BrightnessResponse);
-  
-  // Unary RPC: Retrieves energy consumption of the smart light
-  rpc GetEnergyUsage (EnergyRequest) returns (EnergyResponse);
-  
-  // Server Streaming: Streams real-time energy usage updates
-  rpc MonitorEnergyUsage (EnergyRequest) returns (stream EnergyResponse);
-  
-  // Client Streaming: Accepts multiple brightness adjustments in a batch
-  rpc BatchBrightnessAdjustments (stream BrightnessRequest) returns (BrightnessResponse);
-  
-  // Bi-directional Streaming: Enables real-time lighting control adjustments
-  rpc RealTimeLightingControl (stream LightRequest) returns (stream LightResponse);
+  // Unary RPC: Toggles the light ON or OFF
+  rpc ToggleLight(ToggleRequest) returns (smarthome.common.StatusResponse);
+
+  // Unary RPC: Sets the brightness of the light
+  rpc SetBrightness(BrightnessRequest) returns (smarthome.common.StatusResponse);
+
+  // Server Streaming RPC: Continuously sends light status updates to the client
+  rpc StreamLightStatus(LightStreamRequest) returns (stream LightStatus);
+
+  // Client Streaming RPC: Accepts a batch of light control commands from the client
+  rpc BatchLightControl(stream LightControlCommand) returns (smarthome.common.StatusResponse);
 }
 
-// Messages for requests and responses
-message LightRequest {
-  string device_id = 1; // ID of the light
-  bool state = 2; // true = ON, false = OFF
-  string auth_token = 3;
+
+// Used to toggle a light on or off
+message ToggleRequest {
+  smarthome.common.Device device = 1;   // Target device to control
+  bool on = 2;                          // True = ON, False = OFF
+  smarthome.common.Auth auth = 3;       // Authentication details
 }
 
-message LightResponse {
-  string status = 1;
-}
 
+// Used to set the light brightness
 message BrightnessRequest {
-  string device_id = 1;
-  int32 level = 2; // Brightness level (0-100)
-  string auth_token = 3;
+  smarthome.common.Device device = 1;   // Target device to control
+  int32 percent = 2;                    // Brightness level (0–100)
+  smarthome.common.Auth auth = 3;       // Authentication details
 }
 
-message BrightnessResponse {
-  string status = 1;
+
+// Sent by the client to request regular light status updates
+message LightStreamRequest {
+  smarthome.common.Device device = 1;   // Device to monitor
+  smarthome.common.Auth auth = 2;       // Authentication details
+  int32 update_interval_seconds = 3;    // Frequency of updates (e.g., every 5 seconds)
 }
 
-message EnergyRequest {
-  string device_id = 1;
-  string auth_token = 2;
+
+// Sent by the server to indicate the current light state
+message LightStatus {
+  bool is_on = 1;           // True if light is ON
+  int32 brightness = 2;     // Current brightness level (0–100)
+  int64 timestamp = 3;      // Time of the status report (Unix epoch millis)
 }
 
-message EnergyResponse {
-  float energy_used = 1;
+
+// Used in client-streaming to queue multiple commands for a light
+message LightControlCommand {
+  smarthome.common.Device device = 1;   // Target device
+  smarthome.common.Auth auth = 2;       // Authentication credentials
+
+  // Only one of the following fields can be set:
+  oneof command {
+    bool toggle = 3;           // ON/OFF command
+    int32 set_brightness = 4;  // Brightness level command
+  }
 }
