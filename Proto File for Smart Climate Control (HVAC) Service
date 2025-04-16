@@ -1,56 +1,71 @@
-// --- SmartClimate.proto ---
 syntax = "proto3";
 
-package SmartHome1; // Defines the package for SmartClimate services
+// Package name for climate-related services
+package smarthome.climate;
 
-// Service for Smart Climate Management
-service SmartClimate {
-  // Unary RPC: Sets a specific temperature
-  rpc SetTemperature (TemperatureRequest) returns (TemperatureResponse);
+// Import common definitions shared across services (e.g., Auth, Device, Status)
+import "common.proto";
+
+// ClimateService defines all gRPC methods for managing and monitoring climate systems
+service ClimateService {
   
-  // Unary RPC: Gets the current room temperature and humidity
-  rpc GetCurrentClimate (ClimateRequest) returns (ClimateResponse);
+  // Unary RPC: Client sends a temperature to set, server responds with a success status
+  rpc SetTemperature(SetTemperatureRequest) returns (smarthome.common.StatusResponse);
   
-  // Unary RPC: Retrieves energy consumption data
-  rpc GetEnergyConsumption (EnergyRequest) returns (EnergyResponse);
+  // Unary RPC: Client requests current climate data (temperature/humidity)
+  rpc GetTemperature(GetTemperatureRequest) returns (TemperatureResponse);
   
-  // Server Streaming: Streams real-time climate data changes
-  rpc MonitorClimateChanges (ClimateRequest) returns (stream ClimateResponse);
+  // Server Streaming RPC: Server continuously streams climate updates at intervals
+  rpc StreamClimateUpdates(ClimateStreamRequest) returns (stream ClimateUpdate);
   
-  // Client Streaming: Receives a batch of temperature settings and applies them
-  rpc BatchTemperatureSettings (stream TemperatureRequest) returns (TemperatureResponse);
-  
-  // Bi-directional Streaming: Adjusts climate settings in real-time
-  rpc LiveClimateControl (stream TemperatureRequest) returns (stream ClimateResponse);
+  // Bi-directional Streaming RPC: Client and server stream temperature adjustments and acknowledgements
+  rpc AdjustTemperature(stream TemperatureAdjustment) returns (stream TemperatureAdjustmentAck);
 }
 
-// Messages for requests and responses
-message TemperatureRequest {
-  string device_id = 1; // ID of the climate control device
-  float temperature = 2; // Desired temperature in °C
-  string auth_token = 3; // Security authentication token
+// Request message to set a new target temperature
+message SetTemperatureRequest {
+  float temperature = 1;                    // Desired target temperature
+  smarthome.common.Auth auth = 2;          // Authentication token (API key + device ID)
 }
 
+// Request message to retrieve current temperature and humidity
+message GetTemperatureRequest {
+  smarthome.common.Device device = 1;      // Target device (e.g., thermostat ID)
+  smarthome.common.Auth auth = 2;          // Authentication information
+}
+
+// Response with current environmental readings
 message TemperatureResponse {
-  string status = 1; // Confirmation message
+  float current_temp = 1;                  // Current measured temperature
+  float target_temp = 2;                   // Current target temperature set by the system
+  float humidity = 3;                      // Current measured humidity
 }
 
-message ClimateRequest {
-  string device_id = 1;
-  string auth_token = 2;
+// Request to start streaming periodic climate updates
+message ClimateStreamRequest {
+  smarthome.common.Device device = 1;      // Device to monitor
+  smarthome.common.Auth auth = 2;          // Auth token for verification
+  int32 update_interval_seconds = 3;       // Frequency of updates in seconds
 }
 
-message ClimateResponse {
-  float temperature = 1;
-  float humidity = 2;
-  string status = 3;
+// Message structure for each streamed climate update
+message ClimateUpdate {
+  float temperature = 1;                   // Current temperature at time of update
+  float humidity = 2;                      // Current humidity at time of update
+  int64 timestamp = 3;                     // Epoch timestamp of the update
 }
 
-message EnergyRequest {
-  string device_id = 1;
-  string auth_token = 2;
+// Client sends a temperature change instruction (e.g., +1 or -0.5 degrees)
+message TemperatureAdjustment {
+  smarthome.common.Device device = 1;      // Device where adjustment should apply
+  smarthome.common.Auth auth = 2;          // Authorization for the action
+  float temperature_delta = 3;             // Temperature change value (positive or negative)
 }
 
-message EnergyResponse {
-  float energy_used = 1; // Energy in kWh
+// Server acknowledges a temperature adjustment
+message TemperatureAdjustmentAck {
+  float current_temperature = 1;                 // New current temperature after adjustment
+  float target_temperature = 2;                  // Updated target temperature
+  smarthome.common.OperationStatus status = 3;   // Result of the operation (success/failure)
+  string message = 4;                            //Message of adjustment failure
 }
